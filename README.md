@@ -14,7 +14,7 @@
 
 #with the help of docker file and jar file building an image through 
 
-$ docker build -t testapp
+$ docker build -t testapp .
 
 #To run container on the top of image which was build
 

@@ -1,0 +1,88 @@
+package web.service.omdb;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Scanner;
+
+public class OMDBWebService {
+
+	public static final String SEARCH_URL = "http://www.omdbapi.com/?s=TITLE&apikey=KEY";
+	public static final String SEARCH_IMDB_URL = "http://www.omdbapi.com/?i=IMDB&apikey=KEY";
+
+	public static String getMovieName(String reqURL) {
+
+		StringBuffer response = new StringBuffer();
+
+		try {
+			URL url = new URL(reqURL);
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+			urlConnection.setRequestMethod("GET");
+			urlConnection.setRequestProperty("Accept", "*/*");
+			urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+			InputStream stream = urlConnection.getInputStream();
+			InputStreamReader inputStreamReader = new InputStreamReader(stream);
+			BufferedReader reader = new BufferedReader(inputStreamReader);
+
+			String line;
+			while ((line = reader.readLine()) != null) {
+				response.append(line);
+			}
+
+			reader.close();
+			urlConnection.disconnect();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return response.toString();
+
+	}
+
+	public static String searchMovieByTitle(String title, String key) {
+		try {
+			title = URLEncoder.encode(title, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String reqUrl = SEARCH_URL.replaceAll("TITLE", title).replaceAll("KEY", key);
+		return getMovieName(reqUrl);
+
+	}
+
+	public static String searchMovieByIMDB(String imdb, String key) {
+		String reqUrl = SEARCH_IMDB_URL.replaceAll("IMDB", imdb).replaceAll("KEY", key);
+		return getMovieName(reqUrl);
+
+	}
+
+	public static void main(String[] args) {
+
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Enter movie name : ");
+		String name = sc.nextLine();
+		String res = OMDBWebService.searchMovieByTitle(name, "2c149a42");
+		// System.out.println(res);
+		int index = res.indexOf("imdbID");
+		String imdbID = res.substring(index + 9, index + 18);
+		String json = OMDBWebService.searchMovieByIMDB(imdbID, "2c149a42");
+		// System.out.println(json);
+		int rtIndex = json.indexOf("Rotten Tomatoes");
+		// System.out.println(rtIndex);
+		String rottenValue = json.substring(rtIndex + 26, rtIndex + 29);
+		System.out.println("Rotten tomato score : " + rottenValue);
+		sc.close();
+	}
+
+}

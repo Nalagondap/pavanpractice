@@ -13,5 +13,5 @@ $ docker build -t testapp .
 ```
 # To run container on the top of image which was build
 ```
-sudo docker run -it -p 8080:8080 testapp
+$ sudo docker run -it -p 8080:8080 testapp
 ```
